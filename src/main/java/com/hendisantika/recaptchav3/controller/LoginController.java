@@ -22,4 +22,9 @@ public class LoginController {
     public String loginForm() {
         return "login";
     }
+
+    @GetMapping("/success")
+    public String successPage() {
+        return "success";
+    }
 }
