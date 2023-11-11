@@ -5,6 +5,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -48,5 +51,29 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
         }
 
         return super.attemptAuthentication(request, response);
+    }
+
+    private CustomLoginFilter getCustomLoginFilter() throws Exception {
+        CustomLoginFilter filter = new CustomLoginFilter("/login", "POST");
+        filter.setAuthenticationManager(authenticationManager());
+        filter.setFilterProcessesUrl("/processLogin");
+        filter.setAuthenticationSuccessHandler(new AuthenticationSuccessHandler() {
+            @Override
+            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                if (!response.isCommitted()) {
+                    response.sendRedirect("/success");
+                }
+            }
+        });
+        filter.setAuthenticationFailureHandler(new AuthenticationFailureHandler() {
+            @Override
+            public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException, ServletException {
+                if (!response.isCommitted()) {
+                    response.sendRedirect("login?error");
+                }
+            }
+        });
+
+        return filter;
     }
 }
