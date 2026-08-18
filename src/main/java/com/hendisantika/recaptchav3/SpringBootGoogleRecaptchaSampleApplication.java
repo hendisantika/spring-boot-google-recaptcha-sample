@@ -30,6 +30,10 @@ public class SpringBootGoogleRecaptchaSampleApplication {
                                         RoleRepository roleRepository,
                                         PasswordEncoder passwordEncoder) {
         return args -> {
+            if (appUserRepository.count() > 0) {
+                return;
+            }
+
             List<Role> roles = List.of(
                     new Role("ROLE_USER"),
                     new Role("ROLE_ADMIN")
